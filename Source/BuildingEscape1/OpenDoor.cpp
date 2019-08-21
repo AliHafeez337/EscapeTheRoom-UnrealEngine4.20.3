@@ -26,19 +26,30 @@ void UOpenDoor::BeginPlay()
 	// ...
     Owner = GetOwner();
     /*PawnActor = GetWorld()->GetFirstPlayerController()->GetPawn();*/
+    if (!PressurePlate) {
+        UE_LOG(LogTemp, Error, TEXT("%s is missing PressurePlate."), *(GetOwner()->GetName()));
+    }
 }
 
-void UOpenDoor::DoorOpening()
-{
-    FRotator NewRotation = FRotator(0.f, -70.f, 0.f);
-    Owner->SetActorRotation(NewRotation);
-}
+//void UOpenDoor::DoorOpening()
+//{
+//    FRotator NewRotation = FRotator(0.f, -70.f, 0.f);
+//    if (!Owner) {
+//        UE_LOG(LogTemp, Warning, TEXT("Owner not found"));
+//        return;
+//    }
+//    Owner->SetActorRotation(NewRotation);
+//}
 
-void UOpenDoor::DoorClosing()
-{
-    FRotator NewRotation = FRotator(0.f, 0.f, 0.f);
-    Owner->SetActorRotation(NewRotation);
-}
+//void UOpenDoor::DoorClosing()
+//{
+//    FRotator NewRotation = FRotator(0.f, 0.f, 0.f);
+//    if (!Owner) {
+//        UE_LOG(LogTemp, Warning, TEXT("Owner not found"));
+//        return;
+//    }
+//    Owner->SetActorRotation(NewRotation);
+//}
 
 
 // Called every frame
@@ -53,13 +64,15 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
     
     if (TotalMassOnPressurePlate() > RequiredMassToOpenDoor)
     {
-        DoorOpening();
+        //DoorOpening();
+        OnOpenRequest.Broadcast();
         LastDoorOpenTime = GetWorld()->GetTimeSeconds();
     }
 
     if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay)
     {
-        DoorClosing();
+        //DoorClosing();
+        OnCloseRequest.Broadcast();
     }
 }
 
@@ -69,6 +82,7 @@ float UOpenDoor::TotalMassOnPressurePlate()
     TArray<AActor*> OverlappingActors;
 
     /// find all the overlapping actors having masses
+    if (!PressurePlate) { return TotalMass; }
     PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 
     for (const auto* Actor : OverlappingActors) {

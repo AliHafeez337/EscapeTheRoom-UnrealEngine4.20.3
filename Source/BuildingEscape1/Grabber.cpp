@@ -42,6 +42,10 @@ void UGrabber::Grab() {
     auto HitActor = HitResult.GetActor();
 
     if (HitActor) {
+        if (!PhysicsHandle) {
+            UE_LOG(LogTemp, Warning, TEXT("Physics handle not found"));
+            return; 
+        }
         PhysicsHandle->GrabComponentAtLocationWithRotation(
             ComponentToGrab,
             NAME_None,
@@ -53,6 +57,10 @@ void UGrabber::Grab() {
 
 void UGrabber::Release() {
     UE_LOG(LogTemp, Warning, TEXT("Grab key Released"));
+    if (!PhysicsHandle) {
+        UE_LOG(LogTemp, Warning, TEXT("Physics handle not found"));
+        return;
+    }
     PhysicsHandle->ReleaseComponent();
 }
 
@@ -86,6 +94,10 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// ...
     FVector LineTraceEnd = GetReachLineEnd();
     /// if the physics handle is attached to a physics body
+    if (!PhysicsHandle) {
+        UE_LOG(LogTemp, Warning, TEXT("Physics handle not found"));
+        return;
+    }
     if (PhysicsHandle->GrabbedComponent) {
         /// move the object we are holding
         PhysicsHandle->SetTargetLocation(LineTraceEnd);
